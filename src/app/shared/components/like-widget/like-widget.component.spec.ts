@@ -1,0 +1,77 @@
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { LikeWidgetComponent } from './like-widget.component';
+import { LikeWidgetModule } from './like-widget.module';
+
+describe(LikeWidgetComponent.name, () => {
+  let fixture: ComponentFixture<LikeWidgetComponent> = null;
+  let component: LikeWidgetComponent = null;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [LikeWidgetModule]
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(LikeWidgetComponent);
+    component = fixture.componentInstance;
+  });
+
+  it('Should create component', () => {
+    expect(component).toBeTruthy();
+  });
+
+  it('Should auto-generate ID during ngOnInit when (@Input id) is not assigned', () => {
+    fixture.detectChanges();
+    expect(component.id).toBeTruthy();
+  });
+
+  it('Should NOT auto-generate ID during ngOnInit when (@Input id) is assigned', () => {
+    const someId = 'someId';
+    component.id = someId;
+    fixture.detectChanges();
+    expect(component.id).toBe(someId);
+  });
+
+  it(`#${LikeWidgetComponent.prototype.like.name}
+    should trigger (@Output liked) when called`, () => {
+      spyOn(component.liked, 'emit');
+      fixture.detectChanges();
+      component.like();
+      expect(component.liked.emit).toHaveBeenCalled();
+  });
+
+
+  //TESTE DE UI, com o botão e nao com o metodo do botao
+  it(`(D) Should display number of likes when clicked`, done => {
+    fixture.detectChanges();
+    component.liked.subscribe(() => {
+      component.likes++;
+      fixture.detectChanges();
+      const counterEl: HTMLElement = fixture.nativeElement.querySelector('.like-counter');
+      expect(counterEl.textContent.trim()).toBe('1');
+      //done() -> acabou o teste
+      done();
+    });
+
+
+    const likeWidgetContainerEl: HTMLElement = fixture.nativeElement.querySelector('.like-widget-container');
+    likeWidgetContainerEl.click();
+});
+
+  it('(D) Should display number of likes when ENTER key is pressed!', done => {
+    fixture.detectChanges();
+    component.liked.subscribe(() => {
+      component.likes++;
+      fixture.detectChanges();
+      const counterEl: HTMLElement = fixture.nativeElement.querySelector('.like-counter');
+      expect(counterEl.textContent.trim()).toBe('1');
+      done();
+    });
+    const likeWidgetContainerEl: HTMLElement = fixture.nativeElement.querySelector('.like-widget-container');
+    //Pegando o evento de keyboard event de pressionamento do teclado com a tecla Enter
+    const event = new KeyboardEvent('keyup', {key: 'Enter'});
+    //elemento do DOM despachar o evento.
+    likeWidgetContainerEl.dispatchEvent(event);
+  })
+
+  
+});
